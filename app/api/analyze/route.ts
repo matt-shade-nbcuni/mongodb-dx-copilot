@@ -8,8 +8,9 @@ export const runtime = "nodejs";
 function mongoTlsHint(detail: string): string | undefined {
   if (!/ssl|tls|tlsv1|openssl|TLS alert/i.test(detail)) return undefined;
   return (
-    "MongoDB TLS failed. Use Atlas’s standard connection string (mongodb://host:27017,host:27017,… — not mongodb+srv), " +
-    "double-check the password in MONGODB_URI, and in Atlas Network Access allow 0.0.0.0/0 while testing."
+    "MongoDB TLS failed. Prefer a standard URI: set MONGODB_URI to Atlas’s mongodb://…:27017,… string (not mongodb+srv), " +
+    "or set MONGODB_SEED_HOSTS + MONGODB_REPLICA_SET + MONGODB_USER + MONGODB_PASSWORD (see .env.example). " +
+    "Confirm the password is not a placeholder, allow 0.0.0.0/0 in Atlas Network Access while testing, and redeploy."
   );
 }
 

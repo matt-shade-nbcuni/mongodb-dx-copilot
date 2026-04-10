@@ -1,4 +1,11 @@
-import { MongoClient, type Db, type Collection, type Document } from "mongodb";
+import {
+  MongoClient,
+  ServerApiVersion,
+  type Db,
+  type Collection,
+  type Document,
+  type MongoClientOptions,
+} from "mongodb";
 
 const dbName = process.env.MONGODB_DB_NAME ?? "mongodb_dx_copilot";
 
@@ -36,18 +43,47 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
+/**
+ * Netlify / Node 20 + Atlas: IPv6 or dual-stack DNS can trigger bogus TLS failures
+ * (e.g. OpenSSL "tlsv1 alert internal error"). Forcing IPv4 often fixes it.
+ * Set MONGODB_DNS_FAMILY=auto to use Node defaults (e.g. local Mongo on IPv6).
+ */
+function resolveDnsSocketOptions():
+  | Pick<MongoClientOptions, "family" | "autoSelectFamily">
+  | undefined {
+  const raw = process.env.MONGODB_DNS_FAMILY?.trim().toLowerCase();
+  if (raw === "auto") return undefined;
+  if (raw === "6") return { family: 6, autoSelectFamily: false };
+  if (raw === "4") return { family: 4, autoSelectFamily: false };
+  if (process.env.NETLIFY === "true") {
+    return { family: 4, autoSelectFamily: false };
+  }
+  return undefined;
+}
+
+function mongoClientOptions(): MongoClientOptions {
+  const dns = resolveDnsSocketOptions();
+  return {
+    ...dns,
+    // Atlas stable API (recommended; avoids legacy protocol edge cases)
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+    // Fail fast in serverless; allow a bit more time for TLS + cold SRV
+    serverSelectionTimeoutMS: 15_000,
+    connectTimeoutMS: 15_000,
+    socketTimeoutMS: 20_000,
+    maxPoolSize: 5,
+    minPoolSize: 0,
+  };
+}
+
 function getClientPromise(): Promise<MongoClient> {
   const uri = resolveMongoConnectionString();
   if (!global._mongoClientPromise) {
-    const client = new MongoClient(uri, {
-      // Fail fast in serverless environments so API routes can return
-      // controlled JSON errors instead of timing out as a 502.
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
-      socketTimeoutMS: 10000,
-      maxPoolSize: 5,
-      minPoolSize: 0,
-    });
+    const client = new MongoClient(uri, mongoClientOptions());
     global._mongoClientPromise = client.connect().catch((err) => {
       global._mongoClientPromise = undefined;
       throw err;

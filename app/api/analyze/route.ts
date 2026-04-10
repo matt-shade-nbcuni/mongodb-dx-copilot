@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            "Analysis completed but could not be saved. Check MongoDB connection and MONGODB_URI.",
+            "Analysis completed but could not be saved. Check MongoDB connection and env (MONGODB_URI or MONGODB_USER/MONGODB_PASSWORD/MONGODB_HOST).",
           detail: msg,
           result: { input: parsed.data, output },
         },

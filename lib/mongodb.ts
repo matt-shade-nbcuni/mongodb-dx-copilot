@@ -1,7 +1,31 @@
 import { MongoClient, type Db, type Collection, type Document } from "mongodb";
 
-const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB_NAME ?? "mongodb_dx_copilot";
+
+/**
+ * Prefer `MONGODB_URI` when set.
+ * Otherwise build from `MONGODB_USER`, `MONGODB_PASSWORD`, `MONGODB_HOST`
+ * (password is URL-encoded for special characters).
+ */
+export function resolveMongoConnectionString(): string {
+  const full = process.env.MONGODB_URI?.trim();
+  if (full) return full;
+
+  const user = process.env.MONGODB_USER?.trim();
+  const pass = process.env.MONGODB_PASSWORD ?? "";
+  const host = process.env.MONGODB_HOST?.trim();
+
+  if (user && host) {
+    const u = encodeURIComponent(user);
+    const p = encodeURIComponent(pass);
+    const path = encodeURIComponent(dbName);
+    return `mongodb+srv://${u}:${p}@${host}/${path}?retryWrites=true&w=majority`;
+  }
+
+  throw new Error(
+    "MongoDB is not configured: set MONGODB_URI, or MONGODB_USER + MONGODB_PASSWORD + MONGODB_HOST (and optional MONGODB_DB_NAME)."
+  );
+}
 
 declare global {
   // eslint-disable-next-line no-var -- reuse across HMR / warm invocations
@@ -9,9 +33,7 @@ declare global {
 }
 
 function getClientPromise(): Promise<MongoClient> {
-  if (!uri) {
-    throw new Error("MONGODB_URI is not set");
-  }
+  const uri = resolveMongoConnectionString();
   if (!global._mongoClientPromise) {
     const client = new MongoClient(uri, {
       // Fail fast in serverless environments so API routes can return

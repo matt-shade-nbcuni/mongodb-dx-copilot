@@ -38,11 +38,47 @@ What it does not do (set expectations): It doesn’t replace your DBAs or ar
 Demo line for a 30-second pitch: “We’re standardizing how we stress-test schema decisions: sample documents plus how we read/write, then we get a checklist—warnings, recommended indexes, migration risks, and how we’d roll out and roll back.”
 If you want, you can share your real domain (e.g. fintech vs content) and I’ll suggest one tailored example for each field.
 
-hellomattshade_db_user
-orVhRV2rznN4eDFG
+(Use env vars or Atlas Connect — do not store real passwords in this file.)
+
+mongodb+srv://<username>:<password>@<cluster-host>/mongodb_dx_copilot?retryWrites=true&w=majority&appName=Cluster0
 
 
-mongodb+srv://hellomattshade_db_user:<db_password>@cluster0.h2h4odx.mongodb.net/?appName=Cluster0
+Important fixes vs your current string
+Added database path: /mongodb_dx_copilot
+Added recommended query params: retryWrites=true&w=majority
+Keep appName=Cluster0 (fine)
+Netlify env vars
+MONGODB_URI = full string above
+MONGODB_DB_NAME = mongodb_dx_copilot
+Then redeploy.
+
+Critical note
+If your password has special characters (@, :, /, #, %, etc.), URL-encode it, or reset to alphanumeric only. This is a common cause of TLS/auth failures.
 
 
-mongodb+srv://hellomattshade_db_user:orVhRV2rznN4eDFG@cluster0.h2h4odx.mongodb.net/?appName=Cluster0
+
+
+Direct comprehensive AI and agentic workflow strategies across the NBC News Group portfolio,
+establishing a unified vision for intelligent automation and GenAI adoption.
+Partner extensively with cross-functional leadership, including editorial, product, design, and
+engineering directors, to dramatically accelerate experimentation velocity and resolve day-to-day
+execution bottlenecks.
+Architect and deploy specialized custom agents designed to augment newsroom newsgathering
+capabilities, resulting in significantly enhanced scheduling eﬃciency for on-air producers and
+teams.
+Establish and lead robust AI-enablement programs, including regular oﬃce hours and hands-on
+technical workshops, empowering teams to confidently integrate agentic tools (e.g., ChatGPT,
+Copilot, Cursor) into everyday production workflows.
+Steer technical architecture and strategic direction for AI-enabled discovery tools, deep
+personalization engines, and hybrid workflow systems leveraging React, Node.js, Python, and
+scalable cloud-native infrastructure (AWS/GCP).
+
+
+
+
+Direct comprehensive AI and agentic workflow strategies across the NBC News Group portfolio establishing a unified vision for intelligent automation and GenAI adoption.
+
+
+NEW YORK STATE DEPT OF LABOR
+PO BOX 15130
+ALBANY NY 12212-5130

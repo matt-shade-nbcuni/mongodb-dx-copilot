@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { listRecentAnalyses } from "@/lib/analysisRepository";
 
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     const items = await listRecentAnalyses(20);

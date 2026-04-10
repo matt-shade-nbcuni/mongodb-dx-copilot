@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAnalysisById } from "@/lib/analysisRepository";
 
+export const runtime = "nodejs";
+
 export async function GET(
   _req: Request,
   context: { params: { id: string } }

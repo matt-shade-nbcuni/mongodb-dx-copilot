@@ -3,6 +3,16 @@ import { analysisInputSchema } from "@/lib/schemas";
 import { analyzeRequest } from "@/lib/analyzer";
 import { saveAnalysis } from "@/lib/analysisRepository";
 
+export const runtime = "nodejs";
+
+function mongoTlsHint(detail: string): string | undefined {
+  if (!/ssl|tls|tlsv1|openssl|TLS alert/i.test(detail)) return undefined;
+  return (
+    "MongoDB TLS failed. Use Atlas’s standard connection string (mongodb://host:27017,host:27017,… — not mongodb+srv), " +
+    "double-check the password in MONGODB_URI, and in Atlas Network Access allow 0.0.0.0/0 while testing."
+  );
+}
+
 export async function POST(req: Request) {
   let body: unknown;
   try {
@@ -35,11 +45,13 @@ export async function POST(req: Request) {
     } catch (dbErr) {
       const msg =
         dbErr instanceof Error ? dbErr.message : "Database error";
+      const hint = mongoTlsHint(msg);
       return NextResponse.json(
         {
           error:
             "Analysis completed but could not be saved. Check MongoDB connection and env (MONGODB_URI or MONGODB_USER/MONGODB_PASSWORD/MONGODB_HOST).",
           detail: msg,
+          hint,
           result: { input: parsed.data, output },
         },
         { status: 503 }

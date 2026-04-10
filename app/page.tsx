@@ -39,19 +39,27 @@ export default function HomePage() {
             typeof data.error === "string"
               ? data.error
               : "Saved to database failed; showing analysis result.";
+          const hint =
+            typeof data.hint === "string" && data.hint.trim()
+              ? `\n\n${data.hint}`
+              : "";
           const detail =
             typeof data.detail === "string" && data.detail.trim()
               ? `\n\nTechnical detail: ${data.detail}`
               : "";
-          setRequestError(base + detail);
+          setRequestError(base + hint + detail);
         } else {
           const base =
             typeof data.error === "string" ? data.error : "Analysis failed.";
+          const hint =
+            typeof data.hint === "string" && data.hint.trim()
+              ? `\n\n${data.hint}`
+              : "";
           const detail =
             typeof data.detail === "string" && data.detail.trim()
               ? `\n\nTechnical detail: ${data.detail}`
               : "";
-          setRequestError(base + detail);
+          setRequestError(base + hint + detail);
         }
         return;
       }

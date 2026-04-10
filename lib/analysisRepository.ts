@@ -2,18 +2,24 @@ import { ObjectId } from "mongodb";
 import type { AnalysisInput, AnalysisOutput, AnalysisListItem } from "./schemas";
 import { getAnalysesCollection } from "./mongodb";
 import { truncate } from "./utils";
+import type { SavedAnalysisDoc } from "./savedAnalysisTypes";
 
-export type SavedAnalysisDoc = {
-  _id: ObjectId;
-  createdAt: Date;
-  input: AnalysisInput;
-  output: AnalysisOutput;
-};
+export type { SavedAnalysisDoc } from "./savedAnalysisTypes";
+
+function blobStorageEnabled(): boolean {
+  const s = process.env.ANALYSIS_STORAGE?.trim().toLowerCase();
+  return s === "blob" || s === "netlify-blobs";
+}
 
 export async function saveAnalysis(
   input: AnalysisInput,
   output: AnalysisOutput
 ): Promise<SavedAnalysisDoc> {
+  if (blobStorageEnabled()) {
+    const { saveAnalysisBlob } = await import("./analysisRepositoryBlob");
+    return saveAnalysisBlob(input, output);
+  }
+
   const col = await getAnalysesCollection();
   const doc = {
     createdAt: new Date(),
@@ -29,6 +35,11 @@ export async function saveAnalysis(
 }
 
 export async function listRecentAnalyses(limit = 20): Promise<AnalysisListItem[]> {
+  if (blobStorageEnabled()) {
+    const { listRecentAnalysesBlob } = await import("./analysisRepositoryBlob");
+    return listRecentAnalysesBlob(limit);
+  }
+
   const col = await getAnalysesCollection();
   const cursor = col
     .find(
@@ -65,6 +76,11 @@ export async function listRecentAnalyses(limit = 20): Promise<AnalysisListItem[]
 export async function getAnalysisById(
   id: string
 ): Promise<SavedAnalysisDoc | null> {
+  if (blobStorageEnabled()) {
+    const { getAnalysisByIdBlob } = await import("./analysisRepositoryBlob");
+    return getAnalysisByIdBlob(id);
+  }
+
   let oid: ObjectId;
   try {
     oid = new ObjectId(id);

@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.4",
     "mongodb": "^6.21.0",
     "next": "14.2.35",
     "react": "^18.3.1",

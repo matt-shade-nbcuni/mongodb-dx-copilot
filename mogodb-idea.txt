@@ -1,0 +1,48 @@
+“I built a MongoDB DX Copilot that helps developers reason about schema design, indexes, and migrations from sample data and access patterns.”
+
+
+What to put in each field
+Collection name
+The MongoDB collection you’re designing for (one main entity per run for this MVP), e.g. orders, users, posts, invoices.
+Sample documents
+A JSON array of 2–5 example documents that look like real data: same fields you expect in prod, including optional fields if they exist. You’re not loading a full dataset—just enough to show shape, nested arrays, and inconsistencies.
+Good for: “Does this embed too much?”, “Will this array grow forever?”, “Are field types consistent?”
+Query patterns (one per line)
+Plain-English how the product uses the data, e.g.:
+	•	“Get order by id with line items”
+	•	“List orders for account X by newest first”
+	•	“Find active subscriptions by customer id”
+Good for: index ideas, compound indexes, sort vs filter, read-heavy vs write-heavy.
+Proposed schema change (optional)
+A short what you’re thinking of changing, e.g.:
+	•	“Move line items out of the order document into order_line_items”
+	•	“Split embedded comments into a comments collection”
+Good for: migration risk, rollout/rollback, dual-write vs backfill.
+Fast path: use Load sample data in the app—it fills everything with a realistic posts + embedded comments example.
+
+How to explain it to directors / VPs
+Use outcomes, not stack names.
+One sentence: “This is an internal design review for our MongoDB data model—we paste representative data and how we query it, and it returns risks, index ideas, and a safe rollout/rollback story before we commit engineering time.”
+Why it matters (business):
+Message
+Plain language
+Fewer surprises in production
+Catches growth and migration issues early, when they’re cheap to fix
+Faster delivery
+Clearer indexes and schema choices reduce rework and fire drills
+Operational safety
+Surfaces rollout and rollback thinking for changes that affect customers or SLAs
+Not a chatbot
+Structured report—good for review, audit, and demos
+What it does not do (set expectations): It doesn’t replace your DBAs or architects, and it doesn’t guarantee production performance—it structures design and migration thinking from samples + access patterns.
+Demo line for a 30-second pitch: “We’re standardizing how we stress-test schema decisions: sample documents plus how we read/write, then we get a checklist—warnings, recommended indexes, migration risks, and how we’d roll out and roll back.”
+If you want, you can share your real domain (e.g. fintech vs content) and I’ll suggest one tailored example for each field.
+
+hellomattshade_db_user
+orVhRV2rznN4eDFG
+
+
+mongodb+srv://hellomattshade_db_user:<db_password>@cluster0.h2h4odx.mongodb.net/?appName=Cluster0
+
+
+mongodb+srv://hellomattshade_db_user:orVhRV2rznN4eDFG@cluster0.h2h4odx.mongodb.net/?appName=Cluster0

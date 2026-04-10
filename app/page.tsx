@@ -37,17 +37,23 @@ export default function HomePage() {
       if (!res.ok) {
         if (data.result?.output) {
           setOutput(data.result.output as AnalysisOutput);
-          setRequestError(
+          const base =
             typeof data.error === "string"
               ? data.error
-              : "Saved to database failed; showing analysis result."
-          );
+              : "Saved to database failed; showing analysis result.";
+          const detail =
+            typeof data.detail === "string" && data.detail.trim()
+              ? `\n\nTechnical detail: ${data.detail}`
+              : "";
+          setRequestError(base + detail);
         } else {
-          setRequestError(
-            typeof data.error === "string"
-              ? data.error
-              : "Analysis failed."
-          );
+          const base =
+            typeof data.error === "string" ? data.error : "Analysis failed.";
+          const detail =
+            typeof data.detail === "string" && data.detail.trim()
+              ? `\n\nTechnical detail: ${data.detail}`
+              : "";
+          setRequestError(base + detail);
         }
         return;
       }
@@ -87,7 +93,7 @@ export default function HomePage() {
       </header>
 
       {requestError && (
-        <div className="mb-6 rounded-xl border border-amber-300/35 bg-amber-400/10 px-4 py-3 text-sm text-amber-100 backdrop-blur-sm">
+        <div className="mb-6 whitespace-pre-wrap rounded-xl border border-amber-300/35 bg-amber-400/10 px-4 py-3 text-sm text-amber-100 backdrop-blur-sm">
           {requestError}
         </div>
       )}

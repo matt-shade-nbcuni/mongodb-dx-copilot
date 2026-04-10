@@ -18,8 +18,12 @@ export function resolveMongoConnectionString(): string {
   if (user && host) {
     const u = encodeURIComponent(user);
     const p = encodeURIComponent(pass);
-    const path = encodeURIComponent(dbName);
-    return `mongodb+srv://${u}:${p}@${host}/${path}?retryWrites=true&w=majority`;
+    // Do not put dbName in the URI path: for SCRAM, that path is often used as
+    // authSource; Atlas users authenticate via `admin`. We select the app DB in getDb().
+    const authSource =
+      process.env.MONGODB_AUTH_SOURCE?.trim() || "admin";
+    const a = encodeURIComponent(authSource);
+    return `mongodb+srv://${u}:${p}@${host}/?retryWrites=true&w=majority&authSource=${a}`;
   }
 
   throw new Error(

@@ -2,6 +2,8 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   title: string;
+  /** Short, plain-language line under the title */
+  hint?: string;
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "warning" | "risk";
@@ -9,6 +11,7 @@ type Props = {
 
 export function SectionCard({
   title,
+  hint,
   children,
   className,
   variant = "default",
@@ -24,9 +27,12 @@ export function SectionCard({
         className
       )}
     >
-      <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300/90">
+      <h3 className="text-sm font-semibold tracking-tight text-slate-50">
         {title}
       </h3>
+      {hint ? (
+        <p className="mt-1 text-xs leading-relaxed text-slate-400">{hint}</p>
+      ) : null}
       <div className="mt-3 text-sm text-slate-100/95">{children}</div>
     </section>
   );

@@ -17,7 +17,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "MongoDB DX Copilot",
   description:
-    "Schema, indexing, and migration analysis from sample documents and access patterns.",
+    "Stress-test a MongoDB design before you build: sample documents, plain-English query patterns, and a structured review of schema, indexes, and migration risk.",
 };
 
 export default function RootLayout({

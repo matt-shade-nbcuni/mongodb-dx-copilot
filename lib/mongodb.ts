@@ -1,6 +1,6 @@
+import dns from "node:dns";
 import {
   MongoClient,
-  ServerApiVersion,
   type Db,
   type Collection,
   type Document,
@@ -8,6 +8,16 @@ import {
 } from "mongodb";
 
 const dbName = process.env.MONGODB_DB_NAME ?? "mongodb_dx_copilot";
+
+// mongodb+srv uses DNS; Node’s default can prefer IPv6 first and Atlas+OpenSSL
+// sometimes fails with "tlsv1 alert internal error". Prefer IPv4 for resolution order.
+if (process.env.MONGODB_DNS_ORDER !== "verbatim") {
+  try {
+    dns.setDefaultResultOrder("ipv4first");
+  } catch {
+    /* Node < 17 */
+  }
+}
 
 /**
  * Prefer `MONGODB_URI` when set.
@@ -44,9 +54,8 @@ declare global {
 }
 
 /**
- * Netlify / Node 20 + Atlas: IPv6 or dual-stack DNS can trigger bogus TLS failures
- * (e.g. OpenSSL "tlsv1 alert internal error"). Forcing IPv4 often fixes it.
- * Set MONGODB_DNS_FAMILY=auto to use Node defaults (e.g. local Mongo on IPv6).
+ * Atlas + Node OpenSSL: prefer IPv4 on the socket unless opted out.
+ * Set MONGODB_DNS_FAMILY=auto for local Mongo on IPv6-only localhost.
  */
 function resolveDnsSocketOptions():
   | Pick<MongoClientOptions, "family" | "autoSelectFamily">
@@ -54,23 +63,13 @@ function resolveDnsSocketOptions():
   const raw = process.env.MONGODB_DNS_FAMILY?.trim().toLowerCase();
   if (raw === "auto") return undefined;
   if (raw === "6") return { family: 6, autoSelectFamily: false };
-  if (raw === "4") return { family: 4, autoSelectFamily: false };
-  if (process.env.NETLIFY === "true") {
-    return { family: 4, autoSelectFamily: false };
-  }
-  return undefined;
+  return { family: 4, autoSelectFamily: false };
 }
 
 function mongoClientOptions(): MongoClientOptions {
-  const dns = resolveDnsSocketOptions();
+  const dnsOpts = resolveDnsSocketOptions();
   return {
-    ...dns,
-    // Atlas stable API (recommended; avoids legacy protocol edge cases)
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    },
+    ...dnsOpts,
     // Fail fast in serverless; allow a bit more time for TLS + cold SRV
     serverSelectionTimeoutMS: 15_000,
     connectTimeoutMS: 15_000,
